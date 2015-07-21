@@ -1,0 +1,58 @@
+{
+	"variables": {
+		"build_version": "{{env `BUILD_VERSION`}}"
+	},
+	"builders": [
+		{
+			"name": "centos-6-web",
+			"type": "virtualbox-iso",
+			"guest_os_type": "RedHat_64",
+			"iso_urls": [
+				"src/CentOS-6.6-x86_64-minimal.iso",
+				"http://www.mirrorservice.org/sites/mirror.centos.org/6/isos/x86_64/CentOS-6.6-x86_64-minimal.iso"
+			],
+			"iso_checksum": "eb3c8be6ab668e6d83a118323a789e6c",
+			"iso_checksum_type": "md5",
+			"guest_additions_url": "src/VBoxGuestAdditions_{{.Version}}.iso",
+			"guest_additions_path": "VBoxGuestAdditions.iso",
+			"disk_size": 10240,
+			"hard_drive_interface": "sata",
+			"http_directory": "http",
+			"boot_command": [
+				"<tab> text ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg<enter>"
+			],
+			"boot_wait": "3s",
+			"ssh_username": "root",
+			"ssh_password": "vagrant",
+			"ssh_wait_timeout": "60m",
+			"shutdown_command": "sudo /sbin/halt -p now",
+			"vboxmanage": [
+				["modifyvm", "{{.Name}}", "--memory", "1024"],
+				["modifyvm", "{{.Name}}", "--cpus", "1"]
+			],
+			"vm_name": "centos-6-web",
+			"headless": "true"
+		}
+	],
+	"provisioners": [
+		{
+			"type": "shell",
+			"scripts": [
+				"scripts/dns_fix.sh",
+				"scripts/vagrant.sh",
+				"scripts/base.sh",
+				"scripts/ssh.sh",
+				"scripts/virtualbox.sh",
+				"scripts/web.sh",
+				"scripts/cleanup.sh"
+			]
+		}
+	],
+	"post-processors": [
+		{
+			"type": "vagrant",
+			"compression_level": 9,
+			"output": "builds/{{.BuildName}}-{{user `build_version`}}.box"
+		}
+	]
+}
