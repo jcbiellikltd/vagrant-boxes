@@ -2,6 +2,16 @@
 
 [CentOS](https://www.centos.org/) boxes for use with [Vagrant](https://www.vagrantup.com/).
 
+Usage
+--------
+
+You can [download the boxes from Atlas](https://atlas.hashicorp.com/jcbiellikltd) or [directly](http://repo.jcbiellik.com/boxes/), [build them yourself](#building) or simply reference them in your [Vagrantfile](Vagrantfile-base):
+```sh
+config.vm.box = "jcbiellikltd/centos-6-base"
+# or
+config.vm.box = "jcbiellikltd/centos-6-web"
+```
+
 Building
 --------
 
