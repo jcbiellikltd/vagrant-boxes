@@ -5,7 +5,7 @@
 Usage
 --------
 
-You can [download the boxes from Atlas](https://atlas.hashicorp.com/jcbiellikltd) or [directly](http://repo.jcbiellik.com/boxes/), [build them yourself](#building) or simply reference them in your [Vagrantfile](Vagrantfile-base):
+You can [download the boxes directly](http://repo.jcbiellik.com/boxes/) or [from Atlas](https://atlas.hashicorp.com/jcbiellikltd), [build them yourself](#building) or simply reference them in your [Vagrantfile](Vagrantfile-base):
 ```sh
 config.vm.box = "jcbiellikltd/centos-6-base"
 # or
