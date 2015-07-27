@@ -1,8 +1,7 @@
 Vagrant.configure("2") do |config|
 	config.vm.define "centos-base"
 	config.vm.hostname = "vagrant"
-	config.vm.box = "jcbiellik/centos-6-base"
-	config.vm.box_url = "http://repo.jcbiellik.com/boxes/centos-6-base.json"
+	config.vm.box = "jcbiellikltd/centos-6-base"
 
 	config.ssh.insert_key = false
 
