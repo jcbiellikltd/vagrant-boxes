@@ -1,4 +1,4 @@
-# Vagrant Boxes [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT) [![Release Version](https://img.shields.io/github/release/jcbiellikltd/vagrant-boxes.svg)](https://github.com/jcbiellikltd/vagrant-boxes/releases) [![Packer Version](https://img.shields.io/badge/packer-v0.8.2-yellow.svg)](https://packer.io/) [![VirtualBox Version](https://img.shields.io/badge/virtualbox-v4.3.30-red.svg)](https://www.virtualbox.org/)
+# Vagrant Boxes [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](http://jcbiellik.com/license) [![Release Version](https://img.shields.io/github/release/jcbiellikltd/vagrant-boxes.svg)](https://github.com/jcbiellikltd/vagrant-boxes/releases) [![Packer Version](https://img.shields.io/badge/packer-v0.8.2-yellow.svg)](https://packer.io/) [![VirtualBox Version](https://img.shields.io/badge/virtualbox-v4.3.30-red.svg)](https://www.virtualbox.org/)
 
 [CentOS](https://www.centos.org/) boxes for use with [Vagrant](https://www.vagrantup.com/).
 
@@ -15,5 +15,5 @@ Building these boxes requires [Packer](https://packer.io/) and [VirtualBox](http
 
 2. Build a box:
 	```sh
-	BUILD_VERSION=vx.x.x packer build centos-6-xxx.json
+	BUILD_VERSION=vX.X.X packer build centos-6-XXX.json
 	```
