@@ -9,7 +9,7 @@ yum-config-manager --enable jcb > /dev/null
 yum-config-manager --enable jcb-extra > /dev/null
 
 echo '==> Installing HAProxy, Nginx and PHP 5.6 and extra tools'
-yum -y -q install haproxy nginx php-fpm php-mcrypt php-intl php-mbstring php-xml php-bcmath php-pdo php-soap php-mysqlnd php-process php-pecl-memcache php-pecl-memcached php-pecl-mongo php-gd php-pecl-imagick gd ImageMagick npm libpng-devel ruby ruby-devel rubygems wkhtmltox > /dev/null 2>&1
+yum -y -q install haproxy nginx php-fpm php-mcrypt php-intl php-mbstring php-xml php-bcmath php-pdo php-soap php-mysqlnd php-process php-pecl-memcache php-pecl-memcached php-pecl-mongo php-gd php-xdebug php-pecl-imagick gd ImageMagick npm libpng-devel ruby ruby-devel rubygems wkhtmltox > /dev/null 2>&1
 
 ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
 
