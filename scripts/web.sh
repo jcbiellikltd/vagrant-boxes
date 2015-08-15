@@ -8,8 +8,16 @@ yum-config-manager --add-repo http://repo.jcbiellik.com/jcb.repo > /dev/null
 yum-config-manager --enable jcb > /dev/null
 yum-config-manager --enable jcb-extra > /dev/null
 
-echo '==> Installing HAProxy, Nginx and PHP 5.6 and extra tools'
-yum -y -q install haproxy nginx php-fpm php-mcrypt php-intl php-mbstring php-xml php-bcmath php-pdo php-soap php-mysqlnd php-process php-pecl-memcache php-pecl-memcached php-pecl-mongo php-gd php-xdebug php-pecl-imagick gd ImageMagick npm libpng-devel ruby ruby-devel rubygems wkhtmltox > /dev/null 2>&1
+cat <<-'EOF' > /etc/yum.repos.d/mariadb.repo
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.0/centos6-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+EOF
+
+echo '==> Installing HAProxy, Nginx and PHP 5.6, MariaDB and extra tools'
+yum -y -q install haproxy nginx php-fpm php-mcrypt php-intl php-mbstring php-xml php-bcmath php-pdo php-soap php-mysqlnd php-process php-pecl-memcache php-pecl-memcached php-pecl-mongo php-gd php-xdebug php-pecl-imagick MariaDB-server MariaDB-client gd ImageMagick npm libpng-devel ruby ruby-devel rubygems wkhtmltox > /dev/null 2>&1
 
 ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
 
@@ -57,6 +65,12 @@ backend nginx
 	mode http
 
 	server nginx 127.0.0.1:8080 check send-proxy
+
+listen mysql :3306
+	mode tcp
+	option tcplog
+
+	server mariadb 127.0.0.1:3307
 
 listen stats
 	bind :9000
@@ -192,9 +206,32 @@ php_value[session.save_path] = /var/lib/php/session
 
 EOF
 
+echo '==> Configuring MariaDB'
+cat <<-'EOF' > /etc/my.cnf.d/server.cnf
+[server]
+bind-address=0.0.0.0
+port=3307
+
+[mysqld]
+[embedded]
+[mariadb]
+[mariadb-10.0]
+
+EOF
+
+service mysql start
+
+mysql -u root <<-EOF
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';
+FLUSH PRIVILEGES;
+EOF
+
 chkconfig haproxy on
 chkconfig nginx on
 chkconfig php-fpm on
+chkconfig mysql on
 
 echo 'gem: --no-ri --no-rdoc' > /root/.gemrc
 echo 'gem: --no-ri --no-rdoc' > /home/vagrant/.gemrc
@@ -220,3 +257,77 @@ echo '==> Installing MaxMind GeoIP database'
 mkdir -p /etc/GeoIP
 curl -sS http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz | gzip -d > /etc/GeoIP/GeoLite2-City.mmdb
 chown -R apache:apache /etc/GeoIP
+
+echo '==> Installing Bash Completion scripts'
+cat <<-'EOF' > /etc/bash_completion.d/cakephp
+# bash completion for CakePHP console
+
+_cake()
+{
+	local cur prev opts cake
+	COMPREPLY=()
+	cake="${COMP_WORDS[0]}"
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+	if [[ "$cur" == -* ]] ; then
+		if [[ ${COMP_CWORD} = 1 ]] ; then
+			opts=$(${cake} Completion options)
+		elif [[ ${COMP_CWORD} = 2 ]] ; then
+			opts=$(${cake} Completion options "${COMP_WORDS[1]}")
+		else
+			opts=$(${cake} Completion options "${COMP_WORDS[1]}" "${COMP_WORDS[2]}")
+		fi
+
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	fi
+
+	if [[ ${COMP_CWORD} = 1 ]] ; then
+		opts=$(${cake} Completion commands)
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		return 0
+	fi
+
+	if [[ ${COMP_CWORD} = 2 ]] ; then
+		opts=$(${cake} Completion subcommands $prev)
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		if [[ $COMPREPLY = "" ]] ; then
+			COMPREPLY=( $(compgen -df -- ${cur}) )
+			return 0
+		fi
+		return 0
+	fi
+
+
+	opts=$(${cake} Completion fuzzy "${COMP_WORDS[@]:1}")
+	COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+	if [[ $COMPREPLY = "" ]] ; then
+		COMPREPLY=( $(compgen -df -- ${cur}) )
+		return 0
+	fi
+	return 0;
+}
+
+complete -F _cake cake bin/cake
+
+EOF
+
+cat <<-'EOF' > /etc/bash_completion.d/composer
+# bash completion for Composer
+
+_composer()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local cmd=${COMP_WORDS[0]}
+    if ($cmd > /dev/null 2>&1)
+    then
+        COMPREPLY=( $(compgen -W "$($cmd list --raw | cut -f 1 -d " " | tr "\n" " ")" -- $cur) )
+    fi
+}
+complete -F _composer composer
+complete -F _composer composer.phar
+
+EOF
+
+npm completion > /etc/bash_completion.d/npm
