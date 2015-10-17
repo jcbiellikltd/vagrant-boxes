@@ -23,7 +23,7 @@ baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/x86_64/
 gpgcheck=0
 EOF
 
-echo '==> Installing HAProxy, Nginx and PHP 5.6, MariaDB and extra tools'
+echo '==> Installing HAProxy, Nginx and Ruby'
 yum -y -q install haproxy nginx ruby ruby-devel rubygems > /dev/null 2>&1
 
 echo '==> Configuring HAProxy'
