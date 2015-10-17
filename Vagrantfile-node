@@ -1,0 +1,76 @@
+$provision = <<-'EOF'
+	#!/bin/bash -eu
+
+	echo 'Configuring environment...'
+
+	if [ `ls -1 /vagrant/{{package,bower}.json,Gruntfile.js,Gemfile} 2> /dev/null | wc -l` -gt 0 ]; then
+		echo 'Installing project dependencies:'
+	fi
+
+	if [ -f /vagrant/package.json ]; then
+		echo -e "\tRunning 'npm install'..."
+
+		rm -rf /vagrant/node_modules
+		su vagrant -c 'mkdir -p /home/vagrant/node_modules'
+		su vagrant -c 'ln -s /home/vagrant/node_modules /vagrant/node_modules'
+
+		su vagrant -c "cd /vagrant && npm install --silent > /dev/null"
+	fi
+
+	if [ -f /vagrant/Gemfile ]; then
+		echo -e "\tRunning 'bundle install'..."
+		su vagrant -c "cd /vagrant && bundle install --clean --quiet"
+	fi
+
+	if [ -f /vagrant/bower.json ]; then
+		echo -e "\tRunning 'bower install'..."
+		su vagrant -c "cd /vagrant && bower install --quiet --config.interactive=false > /dev/null"
+	fi
+
+	if [ -f /vagrant/Gruntfile.js ]; then
+		echo -e "\tRunning 'grunt'..."
+		su vagrant -c "cd /vagrant && grunt clean default > /dev/null"
+	fi
+
+	echo -e 'Welcome to your Vagrant development machine\nAccess locally at http://localhost/' > /etc/motd
+	updatedb
+
+	echo -e '\nFinished provisioning:\n'
+	printf '\tHAProxy v%s' $(haproxy -v | head -1 | cut -d' ' -f3)
+	printf '\tNginx v%s' $(2>&1 nginx -v | cut -d'/' -f2)
+	printf '\tGem v%s' $(gem -v)
+	printf '\tNode v%s' $(node -v | cut -d'v' -f2)
+	printf '\tNPM v%s' $(npm -v)
+	printf '\tComposer v%s' $(/usr/local/bin/composer -V | cut -d' ' -f5)
+	printf '\tBower v%s\n' $(bower -v)
+	printf '\tBundler v%s\n' $(bundler -v | cut -d' ' -f3)
+	printf '\tGrunt v%s\n' $(grunt --version | tail -n1 | cut -d'v' -f2)
+	printf '\tBrunch v%s\n' $(brunch --version)
+	echo 'You can now access the server at http://localhost/'
+EOF
+
+Vagrant.configure("2") do |config|
+	config.vm.define "centos-web"
+	config.vm.hostname = "vagrant"
+	config.vm.box = "jcbiellikltd/centos-6-web"
+	config.vm.provision :shell, inline: $provision
+
+	if Vagrant::Util::Platform.windows?
+		config.vm.network :forwarded_port, guest: 80, host: 80
+	elsif Vagrant::Util::Platform.darwin?
+		config.vm.network :forwarded_port, guest: 80, host: 8080
+	else
+		config.vm.network :forwarded_port, guest: 80, host: 8080
+	end
+	config.vm.network "forwarded_port", guest: 9000, host: 9000
+
+	config.ssh.insert_key = false
+
+	config.vm.provider "virtualbox" do |v|
+		v.name = "centos-web"
+		v.cpus = 2
+		v.memory = 2048
+		# v.gui = true
+		v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
+	end
+end
