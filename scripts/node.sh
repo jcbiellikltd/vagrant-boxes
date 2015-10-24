@@ -161,21 +161,19 @@ echo 'gem: --no-ri --no-rdoc' > /home/vagrant/.gemrc
 echo '==> Installing Bundler'
 gem install bundler > /dev/null
 
-echo '==> Installing NVM'
-curl -sS -o- https://raw.githubusercontent.com/creationix/nvm/v0.29.0/install.sh | bash > /dev/null
-source /home/vagrant/.bashrc
+echo '==> Installing Docker, Mongo and NodeJS'
+yum -y -q install docker-io mongodb-org-shell mongodb-org-tools nodejs nodejs-npm > /dev/null 2>&1
 
-echo '==> Installing Node'
-nvm install stable > /dev/null
-
-echo '==> Installing Bower'
-npm install -g bower --silent > /dev/null
-
-echo '==> Installing Grunt'
-npm install -g grunt-cli --silent > /dev/null
-
-echo '==> Installing Brunch'
-npm install -g brunch --silent > /dev/null
+echo '==> Installing Bower, Grunt, Gulp, Brunch, JSHint, ESLint'
+npm install -g bower jshint eslint grunt grunt-cli gulp brunch --silent > /dev/null
 
 echo '==> Installing Bash Completion scripts'
 npm completion > /etc/bash_completion.d/npm
+
+echo '==> Setup Docker'
+groupadd docker 2> /dev/null
+gpasswd -a vagrant docker > /dev/null
+service docker restart > /dev/null
+chkconfig docker on
+curl -sSL https://github.com/docker/compose/releases/download/1.4.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose

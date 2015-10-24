@@ -10,6 +10,8 @@ You can [download the boxes directly](http://repo.jcbiellik.com/boxes/) or [from
 config.vm.box = "jcbiellikltd/centos-6-base"
 # or
 config.vm.box = "jcbiellikltd/centos-6-web"
+# or
+config.vm.box = "jcbiellikltd/centos-6-node"
 ```
 
 Building
