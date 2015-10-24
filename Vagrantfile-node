@@ -44,15 +44,14 @@ $provision = <<-'EOF'
 	printf '\tComposer v%s' $(/usr/local/bin/composer -V | cut -d' ' -f5)
 	printf '\tBower v%s\n' $(bower -v)
 	printf '\tBundler v%s\n' $(bundler -v | cut -d' ' -f3)
-	printf '\tGrunt v%s\n' $(grunt --version | tail -n1 | cut -d'v' -f2)
 	printf '\tBrunch v%s\n' $(brunch --version)
 	echo 'You can now access the server at http://localhost/'
 EOF
 
 Vagrant.configure("2") do |config|
-	config.vm.define "centos-web"
+	config.vm.define "centos-node"
 	config.vm.hostname = "vagrant"
-	config.vm.box = "jcbiellikltd/centos-6-web"
+	config.vm.box = "jcbiellikltd/centos-6-node"
 	config.vm.provision :shell, inline: $provision
 
 	if Vagrant::Util::Platform.windows?
@@ -67,7 +66,7 @@ Vagrant.configure("2") do |config|
 	config.ssh.insert_key = false
 
 	config.vm.provider "virtualbox" do |v|
-		v.name = "centos-web"
+		v.name = "centos-node"
 		v.cpus = 2
 		v.memory = 2048
 		# v.gui = true
