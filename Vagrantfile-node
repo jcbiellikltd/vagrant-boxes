@@ -41,7 +41,6 @@ $provision = <<-'EOF'
 	printf '\tGem v%s' $(gem -v)
 	printf '\tNode v%s' $(node -v | cut -d'v' -f2)
 	printf '\tNPM v%s' $(npm -v)
-	printf '\tComposer v%s' $(/usr/local/bin/composer -V | cut -d' ' -f5)
 	printf '\tBower v%s\n' $(bower -v)
 	printf '\tBundler v%s\n' $(bundler -v | cut -d' ' -f3)
 	printf '\tBrunch v%s\n' $(brunch --version)
